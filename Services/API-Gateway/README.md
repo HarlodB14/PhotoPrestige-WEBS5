@@ -1,0 +1,1 @@
+API-Gateway, al het request/repsonse-verkeer loopt hier doorheen.

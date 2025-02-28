@@ -1,0 +1,1 @@
+Verantwoordelijk voor verwerking van targets en targetdata doorsturen naar TargetDB
