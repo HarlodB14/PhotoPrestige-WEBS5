@@ -1,0 +1,43 @@
+services:
+  api-gateway:
+    build:
+      context: ./Services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "${GATEWAY_PORT:-5000}:5000"
+    env_file:
+      - .env
+    depends_on:
+      - authentication
+    restart: unless-stopped
+
+  authentication:
+    build:
+      context: ./Services/Authentication  # Fixed path
+      dockerfile: Dockerfile
+    ports:
+      - "${AUTH_PORT:-5006}:5006"
+    env_file:
+      - .env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mongodb_data:
