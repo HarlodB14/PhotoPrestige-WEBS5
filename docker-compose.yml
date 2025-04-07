@@ -31,6 +31,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_USERNAME: admin
+      MONGO_PASSWORD: secret
     volumes:
       - mongodb_data:/data/db
     healthcheck:
