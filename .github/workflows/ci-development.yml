@@ -23,4 +23,4 @@ jobs:
         run: npm run lint || echo "ESLint warnings found (not blocking during development)"
 
       - name: Run tests
-        run: npm test -- --passWithNoTests  
+        run: npm test -- --passWithNoTests
