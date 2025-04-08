@@ -2,11 +2,24 @@ name: CI (Development)
 
 on:
   pull_request:
-    branches: [development] 
+    branches: [development]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm test
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint (warnings allowed)
+        run: npm run lint || echo "ESLint warnings found (not blocking during development)"
+
+      - name: Run tests
+        run: npm test
