@@ -1,0 +1,31 @@
+name: Continuous Integration
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:latest
+        ports: ["27017:27017"]
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: secret
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run tests
+        env:
+          MONGO_URI: mongodb://admin:secret@localhost:27017/authdb?authSource=admin
+          JWT_SECRET: testsecret
+        run: npm test
