@@ -1,6 +1,7 @@
 {
   "name": "authentication-service",
   "version": "1.0.0",
+  "type": "module",
   "description": "Valideert users en geeft weer via gateway response",
   "main": "index.js",
   "directories": {

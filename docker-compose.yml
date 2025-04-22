@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   api-gateway:
     build:
@@ -12,8 +14,15 @@ services:
     restart: unless-stopped
 
   authentication:
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5006/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      - MONGO_URI=mongodb://admin:secret@mongo:27017/authdb?authSource=admin
     build:
-      context: ./Services/Authentication  # Fixed path
+      context: ./Services/Authentication
       dockerfile: Dockerfile
     ports:
       - "${AUTH_PORT:-5006}:5006"
@@ -24,6 +33,23 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  register:
+    build:
+      context: ./Services/Register-Service
+      dockerfile: Dockerfile
+    ports:
+      - "${REGISTER_PORT:-5007}:5007"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - authentication
+    volumes:
+      - ./Services:/app/Services
+    working_dir: /app/Services/Register-Service
+    restart: unless-stopped
+
+
   mongo:
     image: mongo:latest
     ports:
@@ -31,12 +57,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_USERNAME: admin
-      MONGO_PASSWORD: secret
     volumes:
       - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 5s
       timeout: 10s
       retries: 5
