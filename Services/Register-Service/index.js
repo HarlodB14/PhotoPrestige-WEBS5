@@ -2,6 +2,7 @@ import express from 'express';
 import registerRouter from './routes/RegisterRoutes.js';
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
+import './consumers/authConsumer.js';
 
 dotenv.config();
 connectDB();

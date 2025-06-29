@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {publishToQueue} from "/Utils/rabbitmq.js";
+import {publishToQueue} from "/Services/Authentication/Utils/rabbitmq.js";
 
 export const register = async (req, res) => {
     try {
@@ -16,6 +16,14 @@ export const register = async (req, res) => {
         user = new User({username, email, password: hashedPassword});
         await user.save();
 
+        console.log('About to publish user registration event:', {
+            event: 'USER_REGISTERED',
+            userId: user._id,
+            email: user.email,
+            username: user.username,
+            timestamp: new Date()
+        });
+
         await publishToQueue('user_registered', {
             event: 'USER_REGISTERED',
             userId: user._id,
@@ -23,6 +31,7 @@ export const register = async (req, res) => {
             username: user.username,
             timestamp: new Date()
         })
+        console.log('Publish call completed'); // Add this line
         res.status(201).json({message: "Gebruiker succesvol aangemaakt!"});
     } catch (err) {
         res.status(500).json({message: "error aanmaken user: ", error: err.message});
