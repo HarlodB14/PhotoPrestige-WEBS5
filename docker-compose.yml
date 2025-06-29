@@ -49,6 +49,16 @@ services:
     working_dir: /app/Services/Register-Service
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # AMQP protocol (for services)
+      - "15672:15672" # Management UI (http://localhost:15672)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
 
   mongo:
     image: mongo:latest
@@ -66,4 +76,5 @@ services:
       retries: 5
 
 volumes:
+  rabbitmq_data:
   mongodb_data:
