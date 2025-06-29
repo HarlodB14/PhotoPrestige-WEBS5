@@ -1,6 +1,7 @@
 {
   "name": "api-gateway",
   "version": "1.0.0",
+  "type": "module",
   "description": "API-Gateway, al het request/repsonse-verkeer loopt hier doorheen.",
   "main": "index.js",
   "directories": {
