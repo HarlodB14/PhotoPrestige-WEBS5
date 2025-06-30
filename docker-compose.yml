@@ -41,9 +41,13 @@ services:
       - "${REGISTER_PORT:-5007}:5007"
     env_file:
       - .env
+    environment:
+      - RABBITMQ_URL=amqp://admin:secret@rabbitmq:5672
     depends_on:
-      - mongo
-      - authentication
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
       - ./Services:/app/Services
     working_dir: /app/Services/Register-Service
