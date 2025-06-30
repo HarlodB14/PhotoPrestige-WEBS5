@@ -28,21 +28,29 @@ async function startAuthConsumer() {
         const connection = await amqp.connect(RABBITMQ_URL);
         const channel = await connection.createChannel();
 
-        // Set up queues with DLQ
-        await channel.assertQueue('user_registered', {durable: true});
+        //Use the same DLQ settings as the producer (authentication service)
+        await channel.assertQueue('user_registered', {
+            durable: true,
+            arguments: {
+                'x-dead-letter-exchange': '',
+                'x-dead-letter-routing-key': 'user_registered_DLQ'
+            }
+        });
+
         await channel.assertQueue('user_registered_DLQ', {durable: true});
 
-        console.log(' Listening for auth events...');
+        console.log('Listening for auth events...');
 
         await channel.consume('user_registered', async (msg) => {
             if (!msg) return;
 
             try {
-                console.log('Received message:', msg.content.toString());
-
                 const message = JSON.parse(msg.content.toString());
-                console.log('Received message:', msg.content.toString());
-                await new Promise(resolve => setTimeout(resolve, 30000)); // 30-second delay omdat de queue message te snel weghaalt, dus kan niet goed debuggen zonder
+                console.log('Received message:', message);
+
+                // Simulated delay for debugging
+                await new Promise(resolve => setTimeout(resolve, 30000));
+
                 await processUserRegistration(message);
                 channel.ack(msg);
             } catch (error) {
@@ -51,7 +59,7 @@ async function startAuthConsumer() {
             }
         });
 
-        //exceptions
+        // Reconnect on connection errors
         connection.on('error', (err) => {
             console.error('RabbitMQ connection error:', err);
             setTimeout(startAuthConsumer, 5000);

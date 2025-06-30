@@ -1,7 +1,7 @@
 import amqp from 'amqplib';
 
 const RABBITMQ_URL = 'amqp://admin:secret@rabbitmq:5672';
-let connection = null;
+export let connection = null;
 let channel = null;
 
 // List of queues to declare at startup
