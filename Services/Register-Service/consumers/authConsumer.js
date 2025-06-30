@@ -41,8 +41,8 @@ async function startAuthConsumer() {
                 console.log('Received message:', msg.content.toString());
 
                 const message = JSON.parse(msg.content.toString());
-                console.log('Received message:', msg.content.toString());  // Add this line
-                await new Promise(resolve => setTimeout(resolve, 30000)); // 30-second delay
+                console.log('Received message:', msg.content.toString());
+                await new Promise(resolve => setTimeout(resolve, 30000)); // 30-second delay omdat de queue message te snel weghaalt, dus kan niet goed debuggen zonder
                 await processUserRegistration(message);
                 channel.ack(msg);
             } catch (error) {
