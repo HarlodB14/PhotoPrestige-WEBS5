@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {publishToQueue} from "/Services/Authentication/Utils/rabbitmq.js";
+import {publishToQueue} from "../Utils/rabbitmq.js";
 
 export const register = async (req, res) => {
     try {

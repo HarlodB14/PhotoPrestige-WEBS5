@@ -15,10 +15,11 @@ services:
 
   authentication:
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:5006/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:5006/health?ready=1 || exit 1" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 45s
     environment:
       - MONGO_URI=mongodb://admin:secret@mongo:27017/authdb?authSource=admin
     build:
@@ -30,6 +31,8 @@ services:
       - .env
     depends_on:
       mongo:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     restart: unless-stopped
 
@@ -53,8 +56,31 @@ services:
     working_dir: /app/Services/Register-Service
     restart: unless-stopped
 
+  target:
+    build:
+      context: ./Services/Target-Service
+      dockerfile: Dockerfile
+    ports:
+      - "${TARGET_PORT:-5005}:5005"
+    env_file:
+      - .env
+    environment:
+      - PORT=5005
+      - MONGO_URI=mongodb://admin:secret@mongo:27017/targetdb?authSource=admin
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads # Persist uploaded files
+    restart: unless-stopped
+
   rabbitmq:
     image: rabbitmq:3-management
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     ports:
       - "5672:5672"   # AMQP protocol (for services)
       - "15672:15672" # Management UI (http://localhost:15672)

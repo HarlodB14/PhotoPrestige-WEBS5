@@ -1,7 +1,11 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import authRouter from './routes/authRoutes.js';
 import connectDB from './config/db.js';
 import cors from 'cors';
+import { connection } from './Utils/rabbitmq.js';
+
+console.log('mongoose:', mongoose);
 
 const app = express();
 
